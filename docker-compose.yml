@@ -1,0 +1,46 @@
+# firma-mcp behind Caddy, which obtains and renews a Let's Encrypt certificate by itself.
+#
+# Before `docker compose up -d`:
+#   1. Point a DNS A record for your domain at this machine.
+#   2. Open ports 80 and 443.
+#   3. Copy .env.example to .env and fill it in.
+
+services:
+  firma-mcp:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Inside the container the server must listen on all interfaces so Caddy can reach it.
+      # It is not published to the host; only Caddy is.
+      FIRMA_HOST: 0.0.0.0
+      FIRMA_PORT: "8600"
+    volumes:
+      - firma-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - firma-mcp
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      FIRMA_DOMAIN: ${FIRMA_DOMAIN:?Set FIRMA_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  firma-data:
+  caddy-data:
+  caddy-config:

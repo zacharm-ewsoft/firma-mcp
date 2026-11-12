@@ -1,0 +1,13 @@
+{$FIRMA_DOMAIN} {
+	# Only the paths the MCP endpoint and its OAuth flow need. Everything else is 404.
+	@mcp path /mcp /mcp/* /auth/* /authorize /token /register /revoke /consent /consent/* /.well-known/*
+	handle @mcp {
+		reverse_proxy firma-mcp:8600 {
+			# Streamable HTTP responses must not be buffered.
+			flush_interval -1
+		}
+	}
+	handle {
+		respond 404
+	}
+}

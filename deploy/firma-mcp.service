@@ -1,0 +1,28 @@
+# Example systemd unit for running firma-mcp without Docker.
+# Assumes a dedicated user "firma" and the code installed in a virtualenv under
+# /opt/firma-mcp. Adjust the paths, then:
+#   systemctl daemon-reload && systemctl enable --now firma-mcp
+[Unit]
+Description=firma-mcp (read-only MCP server)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=firma
+Group=firma
+WorkingDirectory=/opt/firma-mcp
+# Keep this file readable by the service user only: chmod 600 /opt/firma-mcp/.env
+EnvironmentFile=/opt/firma-mcp/.env
+Environment=FIRMA_ENV_FILE=/opt/firma-mcp/.env
+Environment=FASTMCP_HOME=/var/lib/firma-mcp
+ExecStart=/opt/firma-mcp/.venv/bin/python -m firma_mcp
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+StateDirectory=firma-mcp
+
+[Install]
+WantedBy=multi-user.target
