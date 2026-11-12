@@ -23,12 +23,17 @@ or change or delete anything in the connected systems.
 | KSeF 2.0 (Krajowy System e-Faktur) | `ksef` | Production | Runs daily against the production KSeF API in the author's company. |
 | Merit Aktiva / 360 Księgowość | `merit` | Production | Runs daily against the Polish endpoint. The Estonian and Finnish endpoints are untested. |
 | Mail (IMAP) | `mail` | Production | Runs daily against one IMAP server (TLS, port 993, app passwords). Other servers are untested. |
-| Fakturownia | `fakturownia` | **Experimental** | Written from the public API documentation. Tested only against stubbed responses, never on a live account. |
+| Fakturownia | `fakturownia` | **Experimental, off by default** | Written from the public API documentation. Tested only against stubbed responses, never on a live account. |
 
 "Production" describes one company's installation. It is not a claim about anyone else's.
 
 A module switches on only when all of its settings are present. The rest of the server works
 without it.
+
+Fakturownia is the exception: it is off by default. Entering its credentials does not start
+it. You have to opt in with a separate setting, `FAKTUROWNIA_ENABLED=true`, because the
+module has never run against a live account. With the switch on and credentials missing,
+the server refuses to start.
 
 ## Tools
 
@@ -98,6 +103,7 @@ variable with a note on where to get its value. In short:
    `FIRMA_DOMAIN` (the same host, used by Caddy).
 2. **Authentication** (required, see below).
 3. **Modules**: fill in the sections for the systems you use and leave the others empty.
+   For the experimental Fakturownia module also set `FAKTUROWNIA_ENABLED=true`.
 
 ### Authentication
 
@@ -178,7 +184,7 @@ tools, so this server does not add them. They are only required for a server to 
 
 Stated separately on purpose.
 
-**Automated tests (run in CI on every push).** 229 unit tests. KSeF, Merit and Fakturownia
+**Automated tests (run in CI on every push).** 237 unit tests. KSeF, Merit and Fakturownia
 are tested against stubbed HTTP responses and mail against a fake IMAP mailbox. All test data
 is made up.
 

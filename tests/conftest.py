@@ -19,6 +19,7 @@ def env() -> dict[str, str]:
         "KSEF_TOKEN": "ksef-token",
         "KSEF_NIP": "1111111111",
         "KSEF_ENV": "test",
+        "FAKTUROWNIA_ENABLED": "true",
         "FAKTUROWNIA_DOMAIN": "acme",
         "FAKTUROWNIA_API_TOKEN": "fakturownia-token",
     }

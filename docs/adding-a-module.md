@@ -70,6 +70,10 @@ Validate what you can here (a malformed domain, an unknown environment name) and
 
 Add every new variable to `.env.example` with a note on where its value comes from.
 
+The real Fakturownia module adds one more condition on top of this example: because it is
+experimental, it also requires `FAKTUROWNIA_ENABLED=true`. Consider the same for any module
+that has not run against a live account yet.
+
 ## Step 3: the tools
 
 `register` creates the client and declares the tools. Three things matter:

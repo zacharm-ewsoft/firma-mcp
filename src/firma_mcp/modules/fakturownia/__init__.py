@@ -1,8 +1,9 @@
 """Fakturownia module: sales and cost invoices and their payment state. Read-only.
 
-Status: EXPERIMENTAL. Written from the public API documentation and tested only against
-stubbed HTTP responses. It has never been run against a live Fakturownia account. See the
-notes at the top of ``client.py`` for exactly what is documented and what is assumed.
+Status: EXPERIMENTAL and off by default (see ``load``). Written from the public API
+documentation and tested only against stubbed HTTP responses. It has never been run against
+a live Fakturownia account. See the notes at the top of ``client.py`` for exactly what is
+documented and what is assumed.
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ from firma_mcp.modules import EXPERIMENTAL, Module
 from firma_mcp.modules.fakturownia.client import MAX_PDF_BYTES, FakturowniaClient, base_url
 from firma_mcp.toolkit import READ_ONLY, Context, listing
 
+ENABLE_VAR = "FAKTUROWNIA_ENABLED"
 NOTE = "EXPERIMENTAL (not tested on a live Fakturownia account). "
 
 
@@ -27,10 +29,28 @@ class FakturowniaConfig:
     api_token: str
 
 
+def _switched_on(env: Mapping[str, str]) -> bool:
+    raw = (env.get(ENABLE_VAR) or "").strip().lower()
+    if raw in ("", "0", "false", "no", "off"):
+        return False
+    if raw in ("1", "true", "yes", "on"):
+        return True
+    raise ConfigError(f"{ENABLE_VAR} must be 'true' or 'false', got {raw!r}")
+
+
 def load(env: Mapping[str, str]) -> FakturowniaConfig | None:
+    """Unlike the other modules, credentials alone do not enable this one.
+
+    Because it is experimental, it stays off until ``FAKTUROWNIA_ENABLED=true`` is set as
+    well, so nobody runs untested code by merely filling in the credentials.
+    """
+    if not _switched_on(env):
+        return None
     values = read_group(env, "fakturownia", ("FAKTUROWNIA_DOMAIN", "FAKTUROWNIA_API_TOKEN"))
     if values is None:
-        return None
+        raise ConfigError(
+            f"{ENABLE_VAR} is set, but FAKTUROWNIA_DOMAIN and FAKTUROWNIA_API_TOKEN are missing"
+        )
     try:
         base_url(values["FAKTUROWNIA_DOMAIN"])
     except ValueError as exc:

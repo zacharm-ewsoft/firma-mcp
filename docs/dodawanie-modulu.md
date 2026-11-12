@@ -63,6 +63,10 @@ Złe ustawienie powinno wyjść przy starcie, a nie przy pierwszym wywołaniu na
 
 Każdą nową zmienną dopisz do `.env.example` z informacją, skąd wziąć jej wartość.
 
+Prawdziwy moduł Fakturowni ma jeszcze jeden warunek ponad ten przykład: ponieważ jest
+eksperymentalny, wymaga dodatkowo `FAKTUROWNIA_ENABLED=true`. Rozważ to samo dla każdego
+modułu, który nie działał jeszcze na żywym koncie.
+
 ## Krok 3: narzędzia
 
 `register` tworzy klienta i deklaruje narzędzia. Liczą się trzy rzeczy:

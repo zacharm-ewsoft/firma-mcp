@@ -292,17 +292,37 @@ def test_client_only_issues_get_requests():
 # -- configuration -----------------------------------------------------------------
 
 
-def test_load_requires_both_variables():
+CREDENTIALS = {"FAKTUROWNIA_DOMAIN": "acme", "FAKTUROWNIA_API_TOKEN": "t"}
+ON = {"FAKTUROWNIA_ENABLED": "true"}
+
+
+def test_module_is_off_by_default_even_with_credentials():
     assert module.load({}) is None
-    with pytest.raises(ConfigError, match="FAKTUROWNIA_API_TOKEN"):
-        module.load({"FAKTUROWNIA_DOMAIN": "acme"})
-    config = module.load({"FAKTUROWNIA_DOMAIN": "acme", "FAKTUROWNIA_API_TOKEN": "t"})
+    assert module.load(CREDENTIALS) is None
+    assert module.load({**CREDENTIALS, "FAKTUROWNIA_ENABLED": "false"}) is None
+
+
+@pytest.mark.parametrize("value", ["true", "TRUE", "1", "yes", "on"])
+def test_module_is_enabled_only_by_the_explicit_switch(value):
+    config = module.load({**CREDENTIALS, "FAKTUROWNIA_ENABLED": value})
     assert (config.domain, config.api_token) == ("acme", "t")
+
+
+def test_switch_without_credentials_refuses_to_start():
+    with pytest.raises(ConfigError, match="FAKTUROWNIA_DOMAIN and FAKTUROWNIA_API_TOKEN are missing"):
+        module.load(ON)
+    with pytest.raises(ConfigError, match="FAKTUROWNIA_API_TOKEN"):
+        module.load({**ON, "FAKTUROWNIA_DOMAIN": "acme"})
+
+
+def test_unclear_switch_value_refuses_to_start():
+    with pytest.raises(ConfigError, match="FAKTUROWNIA_ENABLED"):
+        module.load({**CREDENTIALS, "FAKTUROWNIA_ENABLED": "maybe"})
 
 
 def test_load_rejects_a_bad_domain():
     with pytest.raises(ConfigError, match="FAKTUROWNIA_DOMAIN"):
-        module.load({"FAKTUROWNIA_DOMAIN": "evil.example/x", "FAKTUROWNIA_API_TOKEN": "t"})
+        module.load({**ON, "FAKTUROWNIA_DOMAIN": "evil.example/x", "FAKTUROWNIA_API_TOKEN": "t"})
 
 
 def test_module_is_marked_experimental():

@@ -23,12 +23,17 @@ wysłać wiadomości, wystawić faktury ani niczego zmienić lub usunąć w pod�
 | KSeF 2.0 (Krajowy System e-Faktur) | `ksef` | Produkcja | Działa codziennie na produkcyjnym API KSeF w firmie autora. |
 | Merit Aktiva / 360 Księgowość | `merit` | Produkcja | Działa codziennie na polskim adresie API. Adresy estoński i fiński nie były testowane. |
 | Poczta (IMAP) | `mail` | Produkcja | Działa codziennie z jednym serwerem IMAP (TLS, port 993, hasła aplikacyjne). Inne serwery nie były testowane. |
-| Fakturownia | `fakturownia` | **Eksperymentalny** | Napisany na podstawie publicznej dokumentacji API. Testowany wyłącznie na zaślepkach odpowiedzi, nigdy na żywym koncie. |
+| Fakturownia | `fakturownia` | **Eksperymentalny, domyślnie wyłączony** | Napisany na podstawie publicznej dokumentacji API. Testowany wyłącznie na zaślepkach odpowiedzi, nigdy na żywym koncie. |
 
 „Produkcja” opisuje instalację w jednej firmie. Nie jest to stwierdzenie o czyjejkolwiek
 innej.
 
 Moduł włącza się tylko wtedy, gdy ma komplet ustawień. Reszta serwera działa bez niego.
+
+Wyjątkiem jest Fakturownia: jest domyślnie wyłączona. Samo wpisanie danych dostępowych jej
+nie uruchamia. Trzeba ją świadomie włączyć osobnym ustawieniem `FAKTUROWNIA_ENABLED=true`,
+bo moduł nigdy nie działał na żywym koncie. Jeśli przełącznik jest włączony, a danych
+dostępowych brakuje, serwer odmawia startu.
 
 ## Narzędzia
 
@@ -99,6 +104,7 @@ każdą zmienną z informacją, skąd wziąć jej wartość. W skrócie:
    (ten sam host, używany przez Caddy).
 2. **Uwierzytelnianie** (wymagane, patrz niżej).
 3. **Moduły**: uzupełnij sekcje systemów, z których korzystasz, pozostałe zostaw puste.
+   Dla eksperymentalnego modułu Fakturowni ustaw dodatkowo `FAKTUROWNIA_ENABLED=true`.
 
 ### Uwierzytelnianie
 
@@ -178,7 +184,7 @@ i `fetch`, więc ten serwer ich nie dodaje. Są wymagane tylko wtedy, gdy serwer
 
 Celowo podane osobno.
 
-**Testy automatyczne (uruchamiane w CI przy każdym wypchnięciu).** 229 testów jednostkowych.
+**Testy automatyczne (uruchamiane w CI przy każdym wypchnięciu).** 237 testów jednostkowych.
 KSeF, Merit i Fakturownia są testowane na zaślepkach odpowiedzi HTTP, a poczta na atrapie
 skrzynki IMAP. Wszystkie dane testowe są zmyślone.
 

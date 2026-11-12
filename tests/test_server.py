@@ -236,6 +236,11 @@ async def test_booking_suggestions_needs_both_ksef_and_merit(env):
     assert "booking_suggestions" not in await tool_names(make_server(without(env, "KSEF_")))
 
 
+async def test_fakturownia_stays_off_without_its_switch(env):
+    del env["FAKTUROWNIA_ENABLED"]  # credentials are still present
+    assert await tool_names(make_server(env)) == PRODUCTION_TOOLS
+
+
 def test_no_module_configured_refuses_to_start(env):
     core_only = without(env, "MAIL_", "MERIT_", "KSEF_", "FAKTUROWNIA_")
     with pytest.raises(ConfigError, match="No module is configured"):
