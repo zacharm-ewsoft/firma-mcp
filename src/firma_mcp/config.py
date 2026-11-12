@@ -33,6 +33,17 @@ def split_csv(value: str | None) -> tuple[str, ...]:
     return tuple(item.strip() for item in (value or "").split(",") if item.strip())
 
 
+def read_flag(env: Mapping[str, str], key: str, *, default: bool) -> bool:
+    raw = (env.get(key) or "").strip().lower()
+    if raw == "":
+        return default
+    if raw in ("1", "true", "yes", "on"):
+        return True
+    if raw in ("0", "false", "no", "off"):
+        return False
+    raise ConfigError(f"{key} must be 'true' or 'false', got {raw!r}")
+
+
 def read_group(env: Mapping[str, str], module: str, required: tuple[str, ...]) -> dict[str, str] | None:
     """Read one module's required variables as a group.
 
@@ -54,6 +65,8 @@ class CoreSettings:
     auth_mode: str
     host: str
     port: int
+    # Build the booking history in the background at start-up (see modules/booking.py).
+    warm_history: bool = True
     # auth_mode == "github"
     github_client_id: str = ""
     github_client_secret: str = ""
@@ -90,6 +103,7 @@ class CoreSettings:
             "auth_mode": mode,
             "host": env.get("FIRMA_HOST") or "127.0.0.1",
             "port": port,
+            "warm_history": read_flag(env, "FIRMA_WARM_HISTORY", default=True),
         }
 
         if mode == "token":

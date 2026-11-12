@@ -29,7 +29,7 @@ def main() -> None:
         raise SystemExit(2) from None
 
     core = settings.core
-    server = create_server(settings, background=True)
+    server = create_server(settings, background=core.warm_history)
     logging.getLogger("firma_mcp").info(
         "starting: auth=%s modules=%s url=%s/mcp",
         core.auth_mode,

@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from fastmcp import FastMCP
 
-from firma_mcp.config import read_group
+from firma_mcp.config import read_flag, read_group
 from firma_mcp.errors import ConfigError, clamp_days
 from firma_mcp.modules import EXPERIMENTAL, Module
 from firma_mcp.modules.fakturownia.client import MAX_PDF_BYTES, FakturowniaClient, base_url
@@ -29,22 +29,13 @@ class FakturowniaConfig:
     api_token: str
 
 
-def _switched_on(env: Mapping[str, str]) -> bool:
-    raw = (env.get(ENABLE_VAR) or "").strip().lower()
-    if raw in ("", "0", "false", "no", "off"):
-        return False
-    if raw in ("1", "true", "yes", "on"):
-        return True
-    raise ConfigError(f"{ENABLE_VAR} must be 'true' or 'false', got {raw!r}")
-
-
 def load(env: Mapping[str, str]) -> FakturowniaConfig | None:
     """Unlike the other modules, credentials alone do not enable this one.
 
     Because it is experimental, it stays off until ``FAKTUROWNIA_ENABLED=true`` is set as
     well, so nobody runs untested code by merely filling in the credentials.
     """
-    if not _switched_on(env):
+    if not read_flag(env, ENABLE_VAR, default=False):
         return None
     values = read_group(env, "fakturownia", ("FAKTUROWNIA_DOMAIN", "FAKTUROWNIA_API_TOKEN"))
     if values is None:

@@ -86,6 +86,15 @@ def test_redirect_uris_can_be_overridden(env):
     assert CoreSettings.from_env(env).allowed_redirect_uris == ("https://claude.ai/api/mcp/auth_callback",)
 
 
+def test_history_warm_up_is_on_by_default_and_can_be_switched_off(env):
+    assert CoreSettings.from_env(env).warm_history is True
+    env["FIRMA_WARM_HISTORY"] = "false"
+    assert CoreSettings.from_env(env).warm_history is False
+    env["FIRMA_WARM_HISTORY"] = "sometimes"
+    with pytest.raises(ConfigError, match="FIRMA_WARM_HISTORY"):
+        CoreSettings.from_env(env)
+
+
 def test_read_group_all_none_or_error():
     keys = ("A", "B")
     assert read_group({}, "x", keys) is None
