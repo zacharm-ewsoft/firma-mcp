@@ -184,7 +184,7 @@ tools, so this server does not add them. They are only required for a server to 
 
 Stated separately on purpose.
 
-**Automated tests (run in CI on every push).** 237 unit tests. KSeF, Merit and Fakturownia
+**Automated tests (run in CI on every push).** 239 unit tests. KSeF, Merit and Fakturownia
 are tested against stubbed HTTP responses and mail against a fake IMAP mailbox. All test data
 is made up.
 

@@ -14,16 +14,22 @@ There is no unauthenticated mode.
 from __future__ import annotations
 
 import hmac
+import logging
 from collections.abc import Callable
 
 from fastmcp.exceptions import ToolError
 from fastmcp.server.auth import AccessToken, AuthProvider, TokenVerifier
 from fastmcp.server.dependencies import get_access_token
+from fastmcp.server.middleware import Middleware
+from mcp.shared.exceptions import MCPError
 
 from firma_mcp.config import CoreSettings
 
-DENIED = "Access denied: this tool is available to the owner only."
+log = logging.getLogger("firma_mcp.auth")
+
+DENIED = "Access denied: this server is available to its owner only."
 TOKEN_CLIENT_ID = "static-token"
+INVALID_REQUEST = -32600  # JSON-RPC error code
 GITHUB_SCOPE = "read:user"
 
 
@@ -69,6 +75,8 @@ def require_allowed_user(
     claims = getattr(token, "claims", None) or {}
     login = claims.get("login")
     if not login or login.lower() not in allowed:
+        # The login is a public GitHub user name; logging it lets the owner see who tried.
+        log.warning("access denied: GitHub login %r is not on the allowlist", login)
         raise ToolError(DENIED)
     return login
 
@@ -78,8 +86,40 @@ def require_token_client(*, token_getter: Callable[[], object] = get_access_toke
     defence in depth so a tool never runs without an authenticated request."""
     token = token_getter()
     if getattr(token, "client_id", None) != TOKEN_CLIENT_ID:
+        log.warning("access denied: request without the shared token")
         raise ToolError(DENIED)
     return TOKEN_CLIENT_ID
+
+
+class AccessMiddleware(Middleware):
+    """Applies the access check to every MCP request, not only to tool calls.
+
+    Without it, a GitHub account that is not on the allowlist could still sign in and list
+    the tools, and tool descriptions name the configured mailboxes. With it, such an account
+    gets nothing: not the tool list, not a tool call.
+    """
+
+    def __init__(self, guard: Callable[[], object]):
+        self._guard = guard
+
+    async def _checked(self, context, call_next):
+        try:
+            self._guard()
+        except ToolError as exc:
+            # ToolError is only meaningful inside a tool call; other requests would report
+            # it as "Internal server error". Say what actually happened instead.
+            raise MCPError(INVALID_REQUEST, str(exc)) from None
+        return await call_next(context)
+
+    # The protocol handshake itself is left alone so that a denied client gets a clear
+    # "Access denied" on its first real request instead of a failed connection.
+    on_list_tools = _checked
+    on_call_tool = _checked
+    on_list_resources = _checked
+    on_list_resource_templates = _checked
+    on_read_resource = _checked
+    on_list_prompts = _checked
+    on_get_prompt = _checked
 
 
 def build_guard(

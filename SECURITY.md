@@ -38,7 +38,8 @@ distort a summary or try to steer other connectors enabled in the same conversat
 - The server refuses to start without authentication and has no anonymous mode.
 - In GitHub mode, sign-in alone grants nothing. Every tool call checks the caller's GitHub
   login against `FIRMA_ALLOWED_GITHUB_LOGINS`. The server does not start with an empty list.
-  The sign-in requests only the `read:user` scope.
+  The sign-in requests only the `read:user` scope. An account that is not on the list can
+  neither call a tool nor list the tools, and each refused attempt is logged with its login.
 - The optional shared token must be at least 32 characters long.
 - OAuth redirect URIs are restricted to an allowlist (claude.ai, ChatGPT and loopback
   addresses by default).

@@ -184,7 +184,7 @@ i `fetch`, więc ten serwer ich nie dodaje. Są wymagane tylko wtedy, gdy serwer
 
 Celowo podane osobno.
 
-**Testy automatyczne (uruchamiane w CI przy każdym wypchnięciu).** 237 testów jednostkowych.
+**Testy automatyczne (uruchamiane w CI przy każdym wypchnięciu).** 239 testów jednostkowych.
 KSeF, Merit i Fakturownia są testowane na zaślepkach odpowiedzi HTTP, a poczta na atrapie
 skrzynki IMAP. Wszystkie dane testowe są zmyślone.
 

@@ -10,7 +10,7 @@ from typing import Any
 from fastmcp import FastMCP
 
 from firma_mcp import __version__
-from firma_mcp.auth import build_auth, build_guard
+from firma_mcp.auth import AccessMiddleware, build_auth, build_guard
 from firma_mcp.config import CoreSettings
 from firma_mcp.errors import ConfigError
 from firma_mcp.modules import Module, load_enabled
@@ -79,6 +79,7 @@ def create_server(
         instructions=build_instructions(settings.modules),
         auth=auth,
     )
+    mcp.add_middleware(AccessMiddleware(ctx.guard))
     for module, config in settings.modules:
         module.register(mcp, config, ctx)
         log.info("module enabled: %s (%s)", module.name, module.status)

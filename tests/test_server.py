@@ -433,6 +433,25 @@ async def test_default_guard_denies_a_call_without_a_token(env):
             await client.call_tool("merit_purchases", {"days": 3})
 
 
+async def test_account_outside_the_allowlist_cannot_even_list_tools(env, caplog):
+    from types import SimpleNamespace as Token
+
+    from firma_mcp.auth import build_guard
+
+    settings = Settings.from_env(env)
+    outsider = build_guard(settings.core, token_getter=lambda: Token(claims={"login": "not-on-the-list"}))
+    server = create_server(settings, auth=None, guard=outsider, overrides={"merit": FakeMerit()})
+    async with Client(server) as client:
+        with (
+            caplog.at_level(logging.WARNING, logger="firma_mcp.auth"),
+            pytest.raises(Exception, match="Access denied"),
+        ):
+            await client.list_tools()
+        with pytest.raises(Exception, match="Access denied"):
+            await client.list_resources()
+    assert any("not-on-the-list" in r.getMessage() for r in caplog.records)
+
+
 async def test_signed_in_account_outside_the_allowlist_is_rejected(env):
     """A real sign-in by a GitHub account that is not listed must not reach any tool."""
     from types import SimpleNamespace as Token
