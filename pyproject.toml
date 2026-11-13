@@ -6,7 +6,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
 dependencies = [
-    "fastmcp>=4.0,<5",
+    "fastmcp==4.1.8",  # the version the live test ran on; see README
     "imap-tools>=1.15,<2",
     "merit-activa-api>=2.1,<3",
     "httpx>=0.28,<1",

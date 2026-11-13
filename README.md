@@ -176,11 +176,19 @@ tools, so this server does not add them. They are only required for a server to 
 
 ## What has actually been tested
 
-> **Current state.** This code was reorganised from a private installation into the modular
-> form you see here. Since that reorganisation it has **not yet** been run against the live
-> systems (KSeF, Merit, a real mailbox) and has **not yet** been connected to Claude or to
-> ChatGPT. Everything below was verified with automated tests and local runs only. This
-> notice will be updated after live testing.
+> **Current state (13 November 2026).** This code was reorganised from a private
+> installation into the modular form you see here. After that reorganisation:
+>
+> - **Checked on live systems:** on a test installation, `ksef_received` (7 days),
+>   `merit_sales` and `merit_purchases` (31 days) and `mail_list` (1 day) returned the same
+>   results as the original installation for the same parameters. These calls used the
+>   shared-token mode, locally on the server. The same installation served HTTPS through
+>   nginx with a Let's Encrypt certificate.
+> - **Not yet checked live:** the GitHub sign-in from start to finish (including the
+>   `read:user` scope), the refusal of an account that is not on the allowlist during a real
+>   sign-in (covered by unit tests only), and connecting to Claude and to ChatGPT.
+>
+> The live check ran on FastMCP 4.1.8, which is the version pinned in `pyproject.toml`.
 
 Stated separately on purpose.
 

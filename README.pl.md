@@ -176,11 +176,19 @@ i `fetch`, więc ten serwer ich nie dodaje. Są wymagane tylko wtedy, gdy serwer
 
 ## Co zostało naprawdę sprawdzone
 
-> **Stan obecny.** Ten kod został przebudowany z prywatnej instalacji do modułowej postaci,
-> którą tu widać. Po tej przebudowie **nie był jeszcze** uruchomiony na żywych systemach
-> (KSeF, Merit, prawdziwa skrzynka) i **nie był jeszcze** podłączony ani do Claude, ani do
-> ChatGPT. Wszystko poniżej sprawdzono wyłącznie testami automatycznymi i uruchomieniami
-> lokalnymi. Ta uwaga zostanie zaktualizowana po testach na żywo.
+> **Stan obecny (13 listopada 2026).** Ten kod został przebudowany z prywatnej instalacji
+> do modułowej postaci, którą tu widać. Po tej przebudowie:
+>
+> - **Sprawdzone na żywych systemach:** na instalacji testowej `ksef_received` (7 dni),
+>   `merit_sales` i `merit_purchases` (31 dni) oraz `mail_list` (1 dzień) zwróciły to samo,
+>   co pierwotna instalacja dla tych samych parametrów. Wywołania szły w trybie wspólnego
+>   tokenu, lokalnie na serwerze. Ta sama instalacja obsługiwała HTTPS przez nginx
+>   z certyfikatem Let's Encrypt.
+> - **Jeszcze niesprawdzone na żywo:** logowanie przez GitHub od początku do końca (w tym
+>   zakres `read:user`), odrzucenie konta spoza listy przy prawdziwym logowaniu (pokryte
+>   tylko testami jednostkowymi) oraz podłączenie do Claude i do ChatGPT.
+>
+> Test na żywo odbył się na FastMCP 4.1.8 i ta wersja jest przypięta w `pyproject.toml`.
 
 Celowo podane osobno.
 
